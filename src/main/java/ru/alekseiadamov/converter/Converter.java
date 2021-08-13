@@ -3,12 +3,15 @@ package ru.alekseiadamov.converter;
 import java.util.HashMap;
 
 /**
- * An exercise in TDD: https://codingdojo.org/kata/RomanNumerals/
+ * An exercise in TDD: <a href="https://codingdojo.org/kata/RomanNumerals/">https://codingdojo.org/kata/RomanNumerals/</a>
  */
 public class Converter {
 
-    private Converter() {
-        throw new IllegalStateException("Utility class");
+    private StringBuilder numeralBuilder;
+    private final HashMap<Integer, HashMap<Integer, String>> numerals;
+
+    public Converter() {
+        numerals = getNumerals();
     }
 
     /**
@@ -17,33 +20,22 @@ public class Converter {
      * @param number Integer to convert.
      * @return Roman numeral for the specified integer.
      */
-    public static String convert(int number) {
+    public String convert(int number) {
         if (number == 0) {
             return "Cannot convert number 0";
         }
 
-        StringBuilder sb = new StringBuilder();
+        numeralBuilder = new StringBuilder();
 
-        int thousands = thousands(number);
-        if (thousands > 0) {
-            sb.append("M".repeat(thousands));
-        }
+        appendThousands(number);
+        appendHundreds(number);
+        appendTens(number);
+        appendOnes(number);
 
-        final HashMap<Integer, HashMap<Integer, String>> numerals = getNumerals();
-
-        int hundreds = hundreds(number);
-        appendNumeral(sb, hundreds, numerals.get(100));
-
-        int tens = tens(number);
-        appendNumeral(sb, tens, numerals.get(10));
-
-        int ones = ones(number);
-        appendNumeral(sb, ones, numerals.get(1));
-
-        return sb.toString();
+        return numeralBuilder.toString();
     }
 
-    private static HashMap<Integer, HashMap<Integer, String>> getNumerals() {
+    private HashMap<Integer, HashMap<Integer, String>> getNumerals() {
         HashMap<Integer, String> oneNumerals = new HashMap<>();
         oneNumerals.put(1, "I");
         oneNumerals.put(5, "V");
@@ -59,15 +51,37 @@ public class Converter {
         hundredNumerals.put(5, "D");
         hundredNumerals.put(10, "M");
 
-        HashMap<Integer, HashMap<Integer, String>> numerals = new HashMap<>();
-        numerals.put(1, oneNumerals);
-        numerals.put(10, tenNumerals);
-        numerals.put(100, hundredNumerals);
+        HashMap<Integer, HashMap<Integer, String>> map = new HashMap<>();
+        map.put(1, oneNumerals);
+        map.put(10, tenNumerals);
+        map.put(100, hundredNumerals);
 
-        return numerals;
+        return map;
     }
 
-    private static void appendNumeral(StringBuilder sb, int number, HashMap<Integer, String> numerals) {
+    private void appendThousands(int number) {
+        int thousands = thousands(number);
+        if (thousands > 0) {
+            numeralBuilder.append("M".repeat(thousands));
+        }
+    }
+
+    private void appendHundreds(int number) {
+        int hundreds = hundreds(number);
+        appendNumeral(hundreds, numerals.get(100));
+    }
+
+    private void appendTens(int number) {
+        int tens = tens(number);
+        appendNumeral(tens, numerals.get(10));
+    }
+
+    private void appendOnes(int number) {
+        int ones = ones(number);
+        appendNumeral(ones, numerals.get(1));
+    }
+
+    private void appendNumeral(int number, HashMap<Integer, String> numerals) {
 
         String oneNumeral = numerals.get(1);
         String fiveNumeral = numerals.get(5);
@@ -86,23 +100,23 @@ public class Converter {
             } else {
                 numeral = fiveNumeral + oneNumeral.repeat(number - 5);
             }
-            sb.append(numeral);
+            numeralBuilder.append(numeral);
         }
     }
 
-    public static int ones(int number) {
+    private int ones(int number) {
         return Integer.signum(number) * (number % 10);
     }
 
-    public static int tens(int number) {
+    private int tens(int number) {
         return Integer.signum(number) * ((number % 100) / 10);
     }
 
-    public static int hundreds(int number) {
+    private int hundreds(int number) {
         return Integer.signum(number) * ((number % 1000) / 100);
     }
 
-    public static int thousands(int number) {
+    private int thousands(int number) {
         return Integer.signum(number) * ((number % 100000) / 1000);
     }
 }

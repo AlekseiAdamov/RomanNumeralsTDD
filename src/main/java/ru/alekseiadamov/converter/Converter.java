@@ -7,7 +7,6 @@ import java.util.HashMap;
  */
 public class Converter {
 
-    private StringBuilder numeralBuilder;
     private final HashMap<Integer, HashMap<Integer, String>> numerals;
 
     public Converter() {
@@ -15,7 +14,7 @@ public class Converter {
     }
 
     /**
-     * Converts given integer to roman numeral.
+     * Converts given integer to Roman numeral.
      *
      * @param number Integer to convert.
      * @return Roman numeral for the specified integer.
@@ -24,64 +23,72 @@ public class Converter {
         if (number == 0) {
             return "Cannot convert number 0";
         }
+        return getRomanNumeral(number);
+    }
 
-        numeralBuilder = new StringBuilder();
-
-        appendThousands(number);
-        appendHundreds(number);
-        appendTens(number);
-        appendOnes(number);
-
-        return numeralBuilder.toString();
+    private String getRomanNumeral(int number) {
+        return getThousandsNumeral(number) +
+                getHundredsNumeral(number) +
+                getTensNumeral(number) +
+                getOnesNumeral(number);
     }
 
     private HashMap<Integer, HashMap<Integer, String>> getNumerals() {
+        HashMap<Integer, HashMap<Integer, String>> map = new HashMap<>();
+        map.put(1, getOnesNumeralMap());
+        map.put(10, getTensNumeralMap());
+        map.put(100, getHundredsNumeralMap());
+        return map;
+    }
+
+    private HashMap<Integer, String> getOnesNumeralMap() {
         HashMap<Integer, String> oneNumerals = new HashMap<>();
         oneNumerals.put(1, "I");
         oneNumerals.put(5, "V");
         oneNumerals.put(10, "X");
+        return oneNumerals;
+    }
 
+    private HashMap<Integer, String> getTensNumeralMap() {
         HashMap<Integer, String> tenNumerals = new HashMap<>();
         tenNumerals.put(1, "X");
         tenNumerals.put(5, "L");
         tenNumerals.put(10, "C");
+        return tenNumerals;
+    }
 
+    private HashMap<Integer, String> getHundredsNumeralMap() {
         HashMap<Integer, String> hundredNumerals = new HashMap<>();
         hundredNumerals.put(1, "C");
         hundredNumerals.put(5, "D");
         hundredNumerals.put(10, "M");
-
-        HashMap<Integer, HashMap<Integer, String>> map = new HashMap<>();
-        map.put(1, oneNumerals);
-        map.put(10, tenNumerals);
-        map.put(100, hundredNumerals);
-
-        return map;
+        return hundredNumerals;
     }
 
-    private void appendThousands(int number) {
-        int thousands = thousands(number);
+    private String getThousandsNumeral(int number) {
+        int thousands = getThousands(number);
         if (thousands > 0) {
-            numeralBuilder.append("M".repeat(thousands));
+            return "M".repeat(thousands);
         }
+        return "";
     }
 
-    private void appendHundreds(int number) {
-        int hundreds = hundreds(number);
-        appendNumeral(hundreds, numerals.get(100));
+    private String getHundredsNumeral(int number) {
+        int hundreds = getHundreds(number);
+        return getNumeral(hundreds, numerals.get(100));
     }
 
-    private void appendTens(int number) {
-        int tens = tens(number);
-        appendNumeral(tens, numerals.get(10));
+    private String getTensNumeral(int number) {
+        int tens = getTens(number);
+        return getNumeral(tens, numerals.get(10));
     }
 
-    private void appendOnes(int number) {
-        int ones = ones(number);
-        appendNumeral(ones, numerals.get(1));
+    private String getOnesNumeral(int number) {
+        int ones = getOnes(number);
+        return getNumeral(ones, numerals.get(1));
     }
 
-    private void appendNumeral(int number, HashMap<Integer, String> numerals) {
+    private String getNumeral(int number, HashMap<Integer, String> numerals) {
 
         String oneNumeral = numerals.get(1);
         String fiveNumeral = numerals.get(5);
@@ -100,23 +107,24 @@ public class Converter {
             } else {
                 numeral = fiveNumeral + oneNumeral.repeat(number - 5);
             }
-            numeralBuilder.append(numeral);
+            return numeral;
         }
+        return "";
     }
 
-    private int ones(int number) {
+    private int getOnes(int number) {
         return Integer.signum(number) * (number % 10);
     }
 
-    private int tens(int number) {
+    private int getTens(int number) {
         return Integer.signum(number) * ((number % 100) / 10);
     }
 
-    private int hundreds(int number) {
+    private int getHundreds(int number) {
         return Integer.signum(number) * ((number % 1000) / 100);
     }
 
-    private int thousands(int number) {
+    private int getThousands(int number) {
         return Integer.signum(number) * ((number % 100000) / 1000);
     }
 }
